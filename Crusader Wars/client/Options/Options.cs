@@ -1,31 +1,24 @@
-﻿using Crusader_Wars.client;
-using Crusader_Wars.client.WarningMessage;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
-using System.Media;
-using Control = System.Windows.Forms.Control;
 using Crusader_Wars.mod_manager;
-using Crusader_Wars.unit_mapper;
+using Control = System.Windows.Forms.Control;
 
-namespace Crusader_Wars
+namespace Crusader_Wars.client.Options
 {
     public partial class Options : Form
     {
-        private string CK3_Path { get; set; }
-        private string Attila_Path { get; set; }
+        private string Ck3Path { get; set; }
+        private string AttilaPath { get; set; }
 
         public Options()
         {
             InitializeComponent();
-            this.Icon = Properties.Resources.logo;
-
+            Icon = Properties.Resources.logo;
         }
 
         private void CloseBtn_Click(object sender, EventArgs e)
@@ -38,8 +31,8 @@ namespace Crusader_Wars
             if (!string.IsNullOrEmpty(Properties.Settings.Default.VAR_attila_path))
                 AttilaModManager.SaveActiveMods();
 
-            this.Dispose();
-            this.Close();
+            Dispose();
+            Close();
         }
 
 
@@ -54,15 +47,16 @@ namespace Crusader_Wars
             SetOptionsUIData();
             Status_Refresh();
 
-            if(!string.IsNullOrEmpty(Properties.Settings.Default.VAR_attila_path))
+            if (!string.IsNullOrEmpty(Properties.Settings.Default.VAR_attila_path))
             {
                 AttilaModManager.SetControlReference(ModManager);
                 AttilaModManager.ReadInstalledModsAndPopulateModManager();
             }
         }
 
-        /*##############################################
-         *####              MOD OPTIONS             #### 
+        /*
+         *##############################################
+         *####              MOD OPTIONS             ####
          *####--------------------------------------####
          *####          Mod options section         ####
          *##############################################
@@ -70,6 +64,7 @@ namespace Crusader_Wars
         UserControl General_Tab;
         UserControl Units_Tab;
         UserControl BattleScale_Tab;
+
         private void Btn_GeneralTab_Click(object sender, EventArgs e)
         {
             if (OptionsPanel.Controls.Count > 0 && OptionsPanel.Controls[0] != General_Tab)
@@ -98,9 +93,9 @@ namespace Crusader_Wars
 
         //this is to read the options values on the .xml file
         public static List<(string option, string value)> optionsValuesCollection { get; private set; }
+
         public static void ReadOptionsFile()
         {
-
             try
             {
                 string file = @".\Settings\Options.xml";
@@ -108,87 +103,116 @@ namespace Crusader_Wars
                 xmlDoc.Load(file);
 
                 optionsValuesCollection = new List<(string option, string value)>();
-                var CloseAttila_Value = xmlDoc.SelectSingleNode("//Option [@name='CloseAttila']").InnerText;
-                var FullArmies_Value = xmlDoc.SelectSingleNode("//Option [@name='FullArmies']").InnerText;
-                var TimeLimit_Value = xmlDoc.SelectSingleNode("//Option [@name='TimeLimit']").InnerText;
-                var BattleMapsSize_Value = xmlDoc.SelectSingleNode("//Option [@name='BattleMapsSize']").InnerText;
-                var DefensiveDeployables_Value = xmlDoc.SelectSingleNode("//Option [@name='DefensiveDeployables']").InnerText;
-                var UnitCards_Value = xmlDoc.SelectSingleNode("//Option [@name='UnitCards']").InnerText;
+                var closeAttilaValue = xmlDoc.SelectSingleNode("//Option [@name='CloseAttila']").InnerText;
+                var fullArmiesValue = xmlDoc.SelectSingleNode("//Option [@name='FullArmies']").InnerText;
+                var timeLimitValue = xmlDoc.SelectSingleNode("//Option [@name='TimeLimit']").InnerText;
+                var battleMapsSizeValue = xmlDoc.SelectSingleNode("//Option [@name='BattleMapsSize']").InnerText;
+                var defensiveDeployablesValue =
+                    xmlDoc.SelectSingleNode("//Option [@name='DefensiveDeployables']").InnerText;
+                var unitCardsValue = xmlDoc.SelectSingleNode("//Option [@name='UnitCards']").InnerText;
 
-                var LeviesMax_Value = xmlDoc.SelectSingleNode("//Option [@name='LeviesMax']").InnerText;
-                var RangedMax_Value = xmlDoc.SelectSingleNode("//Option [@name='RangedMax']").InnerText;
-                var InfantryMax_Value = xmlDoc.SelectSingleNode("//Option [@name='InfantryMax']").InnerText;
-                var CavalryMax_Value = xmlDoc.SelectSingleNode("//Option [@name='CavalryMax']").InnerText;
+                var leviesMaxValue = xmlDoc.SelectSingleNode("//Option [@name='LeviesMax']").InnerText;
+                var rangedMaxValue = xmlDoc.SelectSingleNode("//Option [@name='RangedMax']").InnerText;
+                var infantryMaxValue = xmlDoc.SelectSingleNode("//Option [@name='InfantryMax']").InnerText;
+                var cavalryMaxValue = xmlDoc.SelectSingleNode("//Option [@name='CavalryMax']").InnerText;
 
-                var BattleScale_Value = xmlDoc.SelectSingleNode("//Option [@name='BattleScale']").InnerText;
-                var AutoScaleUnits_Value = xmlDoc.SelectSingleNode("//Option [@name='AutoScaleUnits']").InnerText;
-                var SeparateArmies_Value = xmlDoc.SelectSingleNode("//Option [@name='SeparateArmies']").InnerText;
+                var battleScaleValue = xmlDoc.SelectSingleNode("//Option [@name='BattleScale']").InnerText;
+                var autoScaleUnitsValue = xmlDoc.SelectSingleNode("//Option [@name='AutoScaleUnits']").InnerText;
+                var separateArmiesValue = xmlDoc.SelectSingleNode("//Option [@name='SeparateArmies']").InnerText;
 
                 optionsValuesCollection.AddRange(new List<(string, string)>
                 {
-                    ("CloseAttila", CloseAttila_Value),
-                    ("FullArmies", FullArmies_Value),
-                    ("TimeLimit", TimeLimit_Value),
-                    ("BattleMapsSize", BattleMapsSize_Value) ,
-                    ("DefensiveDeployables", DefensiveDeployables_Value),
-                    ("UnitCards", UnitCards_Value),
-                    ("SeparateArmies", SeparateArmies_Value),
+                    ("CloseAttila", closeAttilaValue),
+                    ("FullArmies", fullArmiesValue),
+                    ("TimeLimit", timeLimitValue),
+                    ("BattleMapsSize", battleMapsSizeValue),
+                    ("DefensiveDeployables", defensiveDeployablesValue),
+                    ("UnitCards", unitCardsValue),
+                    ("SeparateArmies", separateArmiesValue),
 
-                    ("LeviesMax", LeviesMax_Value),
-                    ("RangedMax", RangedMax_Value),
-                    ("InfantryMax", InfantryMax_Value),
-                    ("CavalryMax", CavalryMax_Value),
+                    ("LeviesMax", leviesMaxValue),
+                    ("RangedMax", rangedMaxValue),
+                    ("InfantryMax", infantryMaxValue),
+                    ("CavalryMax", cavalryMaxValue),
 
-                    ("BattleScale", BattleScale_Value),
-                    ("AutoScaleUnits", AutoScaleUnits_Value),
-
+                    ("BattleScale", battleScaleValue),
+                    ("AutoScaleUnits", autoScaleUnitsValue),
                 });
-
-
             }
             catch
             {
                 MessageBox.Show("Error reading game options. Restart the mod and try again", "Data Error",
-                                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                    MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1,
+                    MessageBoxOptions.DefaultDesktopOnly);
                 Application.Exit();
             }
         }
 
         void SetOptionsUIData()
         {
-            var CloseAttila_ComboBox = General_Tab.Controls[0].Controls.Find("OptionSelection_CloseAttila", true).FirstOrDefault() as ComboBox;
-            var FullArmies_ComboBox = General_Tab.Controls[0].Controls.Find("OptionSelection_FullArmies", true).FirstOrDefault() as ComboBox;
-            var TimeLimit_ComboBox = General_Tab.Controls[0].Controls.Find("OptionSelection_TimeLimit", true).FirstOrDefault() as ComboBox;
-            var BattleMapsSize_ComboBox = General_Tab.Controls[0].Controls.Find("OptionSelection_BattleMapsSize", true).FirstOrDefault() as ComboBox;
-            var DefensiveDeployables_ComboBox = General_Tab.Controls[0].Controls.Find("OptionSelection_DefensiveDeployables", true).FirstOrDefault() as ComboBox;
-            var UnitCards_ComboBox = General_Tab.Controls[0].Controls.Find("OptionSelection_UnitCards", true).FirstOrDefault() as ComboBox;
-            var SeparateArmies_ComboBox = General_Tab.Controls[0].Controls.Find("OptionSelection_SeparateArmies", true).FirstOrDefault() as ComboBox;
+            var CloseAttila_ComboBox =
+                General_Tab.Controls[0].Controls.Find("OptionSelection_CloseAttila", true).FirstOrDefault() as ComboBox;
+            var FullArmies_ComboBox =
+                General_Tab.Controls[0].Controls.Find("OptionSelection_FullArmies", true).FirstOrDefault() as ComboBox;
+            var TimeLimit_ComboBox =
+                General_Tab.Controls[0].Controls.Find("OptionSelection_TimeLimit", true).FirstOrDefault() as ComboBox;
+            var BattleMapsSize_ComboBox =
+                General_Tab.Controls[0].Controls.Find("OptionSelection_BattleMapsSize", true)
+                    .FirstOrDefault() as ComboBox;
+            var DefensiveDeployables_ComboBox = General_Tab.Controls[0].Controls
+                .Find("OptionSelection_DefensiveDeployables", true).FirstOrDefault() as ComboBox;
+            var UnitCards_ComboBox =
+                General_Tab.Controls[0].Controls.Find("OptionSelection_UnitCards", true).FirstOrDefault() as ComboBox;
+            var SeparateArmies_ComboBox =
+                General_Tab.Controls[0].Controls.Find("OptionSelection_SeparateArmies", true)
+                    .FirstOrDefault() as ComboBox;
 
-            var LeviesMax_ComboBox = Units_Tab.Controls[0].Controls.Find("OptionSelection_LeviesMax", true).FirstOrDefault() as ComboBox;
-            var RangedMax_ComboBox = Units_Tab.Controls[0].Controls.Find("OptionSelection_RangedMax", true).FirstOrDefault() as ComboBox;
-            var InfantryMax_ComboBox = Units_Tab.Controls[0].Controls.Find("OptionSelection_InfantryMax", true).FirstOrDefault() as ComboBox;
-            var CavalryMax_ComboBox = Units_Tab.Controls[0].Controls.Find("OptionSelection_CavalryMax", true).FirstOrDefault() as ComboBox;
+            var LeviesMax_ComboBox =
+                Units_Tab.Controls[0].Controls.Find("OptionSelection_LeviesMax", true).FirstOrDefault() as ComboBox;
+            var RangedMax_ComboBox =
+                Units_Tab.Controls[0].Controls.Find("OptionSelection_RangedMax", true).FirstOrDefault() as ComboBox;
+            var InfantryMax_ComboBox =
+                Units_Tab.Controls[0].Controls.Find("OptionSelection_InfantryMax", true).FirstOrDefault() as ComboBox;
+            var CavalryMax_ComboBox =
+                Units_Tab.Controls[0].Controls.Find("OptionSelection_CavalryMax", true).FirstOrDefault() as ComboBox;
 
-            var BattleScale_ComboBox = BattleScale_Tab.Controls[0].Controls.Find("OptionSelection_BattleSizeScale", true).FirstOrDefault() as ComboBox;            
-            var AutoScaleUnits_ComboBox = BattleScale_Tab.Controls[0].Controls.Find("OptionSelection_AutoScale", true).FirstOrDefault() as ComboBox;
+            var BattleScale_ComboBox =
+                BattleScale_Tab.Controls[0].Controls.Find("OptionSelection_BattleSizeScale", true)
+                    .FirstOrDefault() as ComboBox;
+            var AutoScaleUnits_ComboBox =
+                BattleScale_Tab.Controls[0].Controls.Find("OptionSelection_AutoScale", true)
+                    .FirstOrDefault() as ComboBox;
 
 
-            CloseAttila_ComboBox.SelectedItem = optionsValuesCollection.FirstOrDefault(x => x.option == "CloseAttila").value; 
-            FullArmies_ComboBox.SelectedItem = optionsValuesCollection.FirstOrDefault(x => x.option == "FullArmies").value;
-            TimeLimit_ComboBox.SelectedItem = optionsValuesCollection.FirstOrDefault(x => x.option == "TimeLimit").value;
-            BattleMapsSize_ComboBox.SelectedItem = optionsValuesCollection.FirstOrDefault(x => x.option == "BattleMapsSize").value;
-            DefensiveDeployables_ComboBox.SelectedItem = optionsValuesCollection.FirstOrDefault(x => x.option == "DefensiveDeployables").value;
-            UnitCards_ComboBox.SelectedItem = optionsValuesCollection.FirstOrDefault(x => x.option == "UnitCards").value;
-            SeparateArmies_ComboBox.SelectedItem = optionsValuesCollection.FirstOrDefault(x => x.option == "SeparateArmies").value;
+            CloseAttila_ComboBox.SelectedItem =
+                optionsValuesCollection.FirstOrDefault(x => x.option == "CloseAttila").value;
+            FullArmies_ComboBox.SelectedItem =
+                optionsValuesCollection.FirstOrDefault(x => x.option == "FullArmies").value;
+            TimeLimit_ComboBox.SelectedItem =
+                optionsValuesCollection.FirstOrDefault(x => x.option == "TimeLimit").value;
+            BattleMapsSize_ComboBox.SelectedItem =
+                optionsValuesCollection.FirstOrDefault(x => x.option == "BattleMapsSize").value;
+            DefensiveDeployables_ComboBox.SelectedItem = optionsValuesCollection
+                .FirstOrDefault(x => x.option == "DefensiveDeployables").value;
+            UnitCards_ComboBox.SelectedItem =
+                optionsValuesCollection.FirstOrDefault(x => x.option == "UnitCards").value;
+            SeparateArmies_ComboBox.SelectedItem =
+                optionsValuesCollection.FirstOrDefault(x => x.option == "SeparateArmies").value;
 
-            LeviesMax_ComboBox.SelectedItem = optionsValuesCollection.FirstOrDefault(x => x.option == "LeviesMax").value;
-            RangedMax_ComboBox.SelectedItem = optionsValuesCollection.FirstOrDefault(x => x.option == "RangedMax").value;
-            InfantryMax_ComboBox.SelectedItem = optionsValuesCollection.FirstOrDefault(x => x.option == "InfantryMax").value;
-            CavalryMax_ComboBox.SelectedItem = optionsValuesCollection.FirstOrDefault(x => x.option == "CavalryMax").value;
+            LeviesMax_ComboBox.SelectedItem =
+                optionsValuesCollection.FirstOrDefault(x => x.option == "LeviesMax").value;
+            RangedMax_ComboBox.SelectedItem =
+                optionsValuesCollection.FirstOrDefault(x => x.option == "RangedMax").value;
+            InfantryMax_ComboBox.SelectedItem =
+                optionsValuesCollection.FirstOrDefault(x => x.option == "InfantryMax").value;
+            CavalryMax_ComboBox.SelectedItem =
+                optionsValuesCollection.FirstOrDefault(x => x.option == "CavalryMax").value;
 
-            BattleScale_ComboBox.SelectedItem = optionsValuesCollection.FirstOrDefault(x => x.option == "BattleScale").value;
-            AutoScaleUnits_ComboBox.SelectedItem = optionsValuesCollection.FirstOrDefault(x => x.option == "AutoScaleUnits").value;
-            
+            BattleScale_ComboBox.SelectedItem =
+                optionsValuesCollection.FirstOrDefault(x => x.option == "BattleScale").value;
+            AutoScaleUnits_ComboBox.SelectedItem =
+                optionsValuesCollection.FirstOrDefault(x => x.option == "AutoScaleUnits").value;
+
 
             ChangeOptionsTab(General_Tab);
         }
@@ -203,20 +227,23 @@ namespace Crusader_Wars
             var CloseAttila_ComboBox = General_Tab.Controls.Find("OptionSelection_CloseAttila", true)[0] as ComboBox;
             var FullArmies_ComboBox = General_Tab.Controls.Find("OptionSelection_FullArmies", true)[0] as ComboBox;
             var TimeLimit_ComboBox = General_Tab.Controls.Find("OptionSelection_TimeLimit", true)[0] as ComboBox;
-            var BattleMapsSize_ComboBox = General_Tab.Controls.Find("OptionSelection_BattleMapsSize", true)[0] as ComboBox;
-            var DefensiveDeployables_ComboBox = General_Tab.Controls.Find("OptionSelection_DefensiveDeployables", true)[0] as ComboBox;
+            var BattleMapsSize_ComboBox =
+                General_Tab.Controls.Find("OptionSelection_BattleMapsSize", true)[0] as ComboBox;
+            var DefensiveDeployables_ComboBox =
+                General_Tab.Controls.Find("OptionSelection_DefensiveDeployables", true)[0] as ComboBox;
             var UnitCards_ComboBox = General_Tab.Controls.Find("OptionSelection_UnitCards", true)[0] as ComboBox;
-            var SeparateArmies_ComboBox = General_Tab.Controls.Find("OptionSelection_SeparateArmies", true)[0] as ComboBox;
+            var SeparateArmies_ComboBox =
+                General_Tab.Controls.Find("OptionSelection_SeparateArmies", true)[0] as ComboBox;
 
             var LeviesMax_ComboBox = Units_Tab.Controls.Find("OptionSelection_LeviesMax", true)[0] as ComboBox;
             var RangedMax_ComboBox = Units_Tab.Controls.Find("OptionSelection_RangedMax", true)[0] as ComboBox;
             var InfantryMax_ComboBox = Units_Tab.Controls.Find("OptionSelection_InfantryMax", true)[0] as ComboBox;
             var CavalryMax_ComboBox = Units_Tab.Controls.Find("OptionSelection_CavalryMax", true)[0] as ComboBox;
 
-            var BattleScale_ComboBox = BattleScale_Tab.Controls.Find("OptionSelection_BattleSizeScale", true)[0] as ComboBox;
-            var AutoScaleUnits_ComboBox = BattleScale_Tab.Controls.Find("OptionSelection_AutoScale", true)[0] as ComboBox;
-            
-
+            var BattleScale_ComboBox =
+                BattleScale_Tab.Controls.Find("OptionSelection_BattleSizeScale", true)[0] as ComboBox;
+            var AutoScaleUnits_ComboBox =
+                BattleScale_Tab.Controls.Find("OptionSelection_AutoScale", true)[0] as ComboBox;
 
 
             var CloseAttila_Node = xmlDoc.SelectSingleNode("//Option [@name='CloseAttila']");
@@ -254,7 +281,7 @@ namespace Crusader_Wars
         }
 
         /*##############################################
-         *####              GAMES PATHS             #### 
+         *####              GAMES PATHS             ####
          *####--------------------------------------####
          *####          Game paths section          ####
          *##############################################
@@ -306,15 +333,13 @@ namespace Crusader_Wars
             openFileDialog1.Title = "Select 'ck3.exe' from the installation folder";
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                
-                CK3_Path = openFileDialog1.FileName; // Get the selected file path
-                Properties.Settings.Default.VAR_ck3_path = CK3_Path;
-                ChangePathSettings(game_node, CK3_Path);
+                Ck3Path = openFileDialog1.FileName; // Get the selected file path
+                Properties.Settings.Default.VAR_ck3_path = Ck3Path;
+                ChangePathSettings(game_node, Ck3Path);
                 Properties.Settings.Default.Save();
             }
 
             Status_Refresh();
-
         }
 
         private void AttilaBtn_Click(object sender, EventArgs e)
@@ -326,14 +351,15 @@ namespace Crusader_Wars
             openFileDialog1.Title = "Select 'Attila.exe' from the installation folder";
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                
-                Attila_Path = openFileDialog1.FileName; // Get the selected file path
-                Properties.Settings.Default.VAR_attila_path = Attila_Path;
-                if (Attila_Path.Contains("Attila.exe"))
+                AttilaPath = openFileDialog1.FileName; // Get the selected file path
+                Properties.Settings.Default.VAR_attila_path = AttilaPath;
+                if (AttilaPath.Contains("Attila.exe"))
                 {
-                    Properties.Settings.Default.VAR_log_attila = Attila_Path.Substring(0, Attila_Path.IndexOf("Attila.exe")) + "data\\BattleResults_log.txt";
+                    Properties.Settings.Default.VAR_log_attila =
+                        AttilaPath.Substring(0, AttilaPath.IndexOf("Attila.exe")) + "data\\BattleResults_log.txt";
                 }
-                ChangePathSettings(game_node, Attila_Path);
+
+                ChangePathSettings(game_node, AttilaPath);
                 Properties.Settings.Default.Save();
             }
 
@@ -344,7 +370,6 @@ namespace Crusader_Wars
             }
 
             Status_Refresh();
-
         }
 
         private void ChangePathSettings(string game, string new_path)
@@ -359,14 +384,13 @@ namespace Crusader_Wars
                 node.Attributes["path"].Value = new_path;
                 xmlDoc.Save(file);
             }
-            catch 
+            catch
             {
                 MessageBox.Show("Error setting game paths. Restart the mod and try again", "Data Error",
-                                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                    MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1,
+                    MessageBoxOptions.DefaultDesktopOnly);
                 Application.Exit();
             }
-
-
         }
 
         /*
@@ -391,18 +415,17 @@ namespace Crusader_Wars
                 Properties.Settings.Default.VAR_ck3_path = ck3_node.Attributes["path"].Value;
                 Properties.Settings.Default.Save();
             }
-            catch 
+            catch
             {
                 MessageBox.Show("Error reading game paths. Restart the mod and try again", "Data Error",
-                                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                    MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1,
+                    MessageBoxOptions.DefaultDesktopOnly);
                 Application.Exit();
             }
-
-
         }
 
         /*##############################################
-         *####         OPTIONS FORM MOVEMENT        #### 
+         *####         OPTIONS FORM MOVEMENT        ####
          *####--------------------------------------####
          *####--------------------------------------####
          *##############################################
@@ -410,6 +433,7 @@ namespace Crusader_Wars
 
 
         Point mouseOffset;
+
         private void Options_MouseDown(object sender, MouseEventArgs e)
         {
             mouseOffset = new Point(-e.X, -e.Y);
@@ -437,11 +461,8 @@ namespace Crusader_Wars
         }
 
 
-
-
-
         /*##############################################
-         *####              MOD MANAGER             #### 
+         *####              MOD MANAGER             ####
          *####--------------------------------------####
          *####         Mod Manager Section          ####
          *##############################################
@@ -455,6 +476,7 @@ namespace Crusader_Wars
                 AttilaModManager.ChangeEnabledState(ModManager.Rows[rowIndex]);
             }
         }
+
         private void ModManager_CellMouseUp(object sender, DataGridViewCellMouseEventArgs e)
         {
             // End of edition on each click on column of checkbox
@@ -475,7 +497,7 @@ namespace Crusader_Wars
 
 
         /*##############################################
-         *####             UNIT MAPPERS             #### 
+         *####             UNIT MAPPERS             ####
          *####--------------------------------------####
          *####         Unit Mappers Section         ####
          *##############################################
@@ -484,6 +506,7 @@ namespace Crusader_Wars
         UC_UnitMapper CrusaderKings_Tab;
         UC_UnitMapper TheFallenEagle_Tab;
         UC_UnitMapper RealmsInExile_Tab;
+
         private void Btn_CK3Tab_Click(object sender, EventArgs e)
         {
             if (UMpanel.Controls.Count > 0 && UMpanel.Controls[0] != CrusaderKings_Tab)
@@ -503,7 +526,6 @@ namespace Crusader_Wars
         }
 
 
-
         void ChangeUnitMappersTab(Control control)
         {
             control.Dock = DockStyle.Fill;
@@ -517,20 +539,20 @@ namespace Crusader_Wars
             var unit_mappers_folder = Directory.GetDirectories(@".\unit mappers");
             List<string> requiredMods = new List<string>();
 
-            foreach(var mapper in unit_mappers_folder)
+            foreach (var mapper in unit_mappers_folder)
             {
                 string mapperName = Path.GetDirectoryName(mapper);
                 var files = Directory.GetFiles(mapper);
-                foreach(var file in files)
+                foreach (var file in files)
                 {
                     string fileName = Path.GetFileName(file);
-                    if(fileName == "tag.txt")
+                    if (fileName == "tag.txt")
                     {
                         string fileTag = File.ReadAllText(file);
-                        if(tag == fileTag)
+                        if (tag == fileTag)
                         {
                             string modsPath = mapper + @"\Mods.xml";
-                            if(File.Exists(modsPath))
+                            if (File.Exists(modsPath))
                             {
                                 XmlDocument xmlDocument = new XmlDocument();
                                 xmlDocument.Load(modsPath);
@@ -546,8 +568,10 @@ namespace Crusader_Wars
                             else
                             {
                                 MessageBox.Show($"Mods.xml was not found in {mapper}", "Unit Mappers Error",
-                                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                                    MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1,
+                                    MessageBoxOptions.DefaultDesktopOnly);
                             }
+
                             break;
                         }
                     }
@@ -567,14 +591,25 @@ namespace Crusader_Wars
             var tfeToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='TheFallenEagle']").InnerText;
             var lotrToggleStateStr = xmlDoc.SelectSingleNode("//UnitMappers [@name='RealmsInExile']").InnerText;
 
-            bool ck3ToggleState = false; bool tfeToggleState = false; bool lotrToggleState = false;
-            if (ck3ToggleStateStr == "True") ck3ToggleState = true; else ck3ToggleState = false;
-            if (tfeToggleStateStr == "True") tfeToggleState = true; else tfeToggleState = false;
-            if (lotrToggleStateStr == "True") lotrToggleState = true; else lotrToggleState = false;
+            bool ck3ToggleState = false;
+            bool tfeToggleState = false;
+            bool lotrToggleState = false;
+            if (ck3ToggleStateStr == "True") ck3ToggleState = true;
+            else ck3ToggleState = false;
+            if (tfeToggleStateStr == "True") tfeToggleState = true;
+            else tfeToggleState = false;
+            if (lotrToggleStateStr == "True") lotrToggleState = true;
+            else lotrToggleState = false;
 
-            CrusaderKings_Tab = new UC_UnitMapper(Properties.Resources._default, "https://steamcommunity.com/sharedfiles/filedetails/?id=3301634851", GetUnitMappersModsCollectionFromTag("DefaultCK3"),ck3ToggleState);
-            TheFallenEagle_Tab = new UC_UnitMapper(Properties.Resources.tfe, "https://steamcommunity.com/sharedfiles/filedetails/?id=3301639735", GetUnitMappersModsCollectionFromTag("TheFallenEagle"), tfeToggleState);
-            RealmsInExile_Tab = new UC_UnitMapper(Properties.Resources.LOTR, "https://steamcommunity.com/sharedfiles/filedetails/?id=3211765434", GetUnitMappersModsCollectionFromTag("RealmsInExile"), lotrToggleState);
+            CrusaderKings_Tab = new UC_UnitMapper(Properties.Resources._default,
+                "https://steamcommunity.com/sharedfiles/filedetails/?id=3301634851",
+                GetUnitMappersModsCollectionFromTag("DefaultCK3"), ck3ToggleState);
+            TheFallenEagle_Tab = new UC_UnitMapper(Properties.Resources.tfe,
+                "https://steamcommunity.com/sharedfiles/filedetails/?id=3301639735",
+                GetUnitMappersModsCollectionFromTag("TheFallenEagle"), tfeToggleState);
+            RealmsInExile_Tab = new UC_UnitMapper(Properties.Resources.LOTR,
+                "https://steamcommunity.com/sharedfiles/filedetails/?id=3211765434",
+                GetUnitMappersModsCollectionFromTag("RealmsInExile"), lotrToggleState);
 
             CrusaderKings_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { TheFallenEagle_Tab, RealmsInExile_Tab });
             TheFallenEagle_Tab.SetOtherControlsReferences(new UC_UnitMapper[] { CrusaderKings_Tab, RealmsInExile_Tab });
@@ -597,6 +632,5 @@ namespace Crusader_Wars
             RealmsInExile_Node.InnerText = RealmsInExile_Tab.GetState().ToString();
             xmlDoc.Save(file);
         }
-
     }
 }

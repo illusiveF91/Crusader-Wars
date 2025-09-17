@@ -9,6 +9,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
+using Crusader_Wars.client.Options;
 
 namespace Crusader_Wars.terrain
 {

@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using System.Xml;
+using Crusader_Wars.client.Options;
 
 namespace Crusader_Wars.unit_mapper
 {

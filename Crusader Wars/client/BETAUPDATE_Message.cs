@@ -1,18 +1,16 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Media;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Crusader_Wars.client.BETAUPDATE_Message
+namespace Crusader_Wars.client
 {
     public partial class BETAUPDATE_Message : Form
     {
         public BETAUPDATE_Message()
         {
             InitializeComponent();
-            this.Icon = Properties.Resources.logo;
+            Icon = Properties.Resources.logo;
         }
 
         private void SetMessage(string message)
@@ -36,20 +34,23 @@ namespace Crusader_Wars.client.BETAUPDATE_Message
             try
             {
                 Process.Start("https://crusaderwars.com/#download-page");
-                this.Close();
+                Close();
             }
             //Offline
             catch 
             {
-                MessageBox.Show("No Internet connection. Your ck3 mod version is for the new beta release, if you don't download the new the CW launcher from the website it may cause crashes!", "Error",
+                MessageBox.Show("No Internet connection." +
+                                " Your ck3 mod version is for the new beta release, " +
+                                "if you don't download the new the CW launcher from the website it may cause crashes!",
+                    "Error",
                 MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-                this.Close();
+                Close();
             }
         }
 
         private void BtnCancel_Click(object sender, EventArgs e)
         {
-            this.Close();
+            Close();
         }
     }
 }

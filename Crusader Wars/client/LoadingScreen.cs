@@ -10,15 +10,15 @@ namespace Crusader_Wars
             InitializeComponent();
 
             //Icon
-            this.Icon = Properties.Resources.logo;
+            Icon = Properties.Resources.logo;
             flowLayoutPanel2.Hide();
         }
 
         public void ChangeMessage(string message)
         {
-            if (this.InvokeRequired)
+            if (InvokeRequired)
             {
-                this.Invoke(new Action<string>(ChangeMessage), new object[] { message });
+                Invoke(new Action<string>(ChangeMessage), message);
             }
             else
             {
@@ -30,7 +30,7 @@ namespace Crusader_Wars
         {
             if (this.InvokeRequired)
             {
-                this.Invoke(new Action<string>(ChangeUnitMapperMessage), new object[] { message });
+                this.Invoke(new Action<string>(ChangeUnitMapperMessage), message);
             }
             else
             {
@@ -41,7 +41,7 @@ namespace Crusader_Wars
 
         private void LoadingScreen_Shown(object sender, EventArgs e)
         {
-            this.TopMost = false;
+            TopMost = false;
         }
 
     }

@@ -14,14 +14,13 @@ using Crusader_Wars.locs;
 using Crusader_Wars.data.attila_settings;
 using Crusader_Wars.data.save_file;
 using Crusader_Wars.unit_mapper;
-using Crusader_Wars.terrain;
 using System.Threading;
 using Crusader_Wars.mod_manager;
 using System.Xml;
 using IWshRuntimeLibrary;
-using System.Web;
-using System.Windows.Media;
 using System.Drawing.Text;
+using Crusader_Wars.client.Options;
+using Crusader_Wars.twbattle;
 
 
 namespace Crusader_Wars
@@ -179,20 +178,19 @@ namespace Crusader_Wars
             culture.GetCultureName();
         }
 
-        private void CreateAttilaShortcut()
-        {
-            if(!System.IO.File.Exists(@".\CW.lnk")) {
-                object shDesktop = (object)"Desktop";
-                WshShell shell = new WshShell();
-                string shortcutAddress = @".\CW.lnk";
-                IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(shortcutAddress);
-                shortcut.Description = "Shortcut with all user enabled mods and required unit mappers mods for Total War: Attila";
-                shortcut.WorkingDirectory = Properties.Settings.Default.VAR_attila_path.Replace(@"\Attila.exe", "");
-                shortcut.Arguments = "used_mods_cw.txt";
-                shortcut.TargetPath = Properties.Settings.Default.VAR_attila_path;
-                shortcut.Save();
-            }
-        }
+        // private void CreateAttilaShortcut()
+        // {
+        //     if(!File.Exists(@".\CW.lnk")) {
+        //         WshShell shell = new WshShell();
+        //         string shortcutAddress = @".\CW.lnk";
+        //         IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(shortcutAddress);
+        //         shortcut.Description = "Shortcut with all user enabled mods and required unit mappers mods for Total War: Attila";
+        //         shortcut.WorkingDirectory = Properties.Settings.Default.VAR_attila_path.Replace(@"\Attila.exe", "");
+        //         shortcut.Arguments = "used_mods_cw.txt";
+        //         shortcut.TargetPath = Properties.Settings.Default.VAR_attila_path;
+        //         shortcut.Save();
+        //     }
+        // }
 
 
 
@@ -247,19 +245,19 @@ namespace Crusader_Wars
                 infoLabel.Text = "Ready to start!";
                 this.Text = "Crusader Wars (Waiting for battle...)";
 
-                try
-                {
-                    CreateAttilaShortcut();
-                }
-                catch
-                {
-                    MessageBox.Show("Error creating Attila shortcut!", "File Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-                    infoLabel.Text = "Ready to start!";
-                    ExecuteButton.Enabled = true;
-                    this.Text = "Crusader Wars";
-                    break;
-                }
+                // try
+                // {
+                //     CreateAttilaShortcut();
+                // }
+                // catch
+                // {
+                //     MessageBox.Show("Error creating Attila shortcut!", "File Error",
+                //     MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                //     infoLabel.Text = "Ready to start!";
+                //     ExecuteButton.Enabled = true;
+                //     this.Text = "Crusader Wars";
+                //     break;
+                // }
 
 
 

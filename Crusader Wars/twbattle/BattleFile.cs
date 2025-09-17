@@ -1,30 +1,24 @@
-﻿using Crusader_Wars.armies;
-using Crusader_Wars.client;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Windows.Forms;
+using Crusader_Wars.armies;
+using Crusader_Wars.client.Options;
 using Crusader_Wars.data.save_file;
 using Crusader_Wars.locs;
 using Crusader_Wars.terrain;
-using Crusader_Wars.twbattle;
 using Crusader_Wars.unit_mapper;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Web;
-using System.Windows.Forms;
-using static Crusader_Wars.terrain.Lands;
 
-
-namespace Crusader_Wars
+namespace Crusader_Wars.twbattle
 {
     public static class BattleFile
     {
-
-        public static string Unit_Script_Name { get; set; }
+        private static string UnitScriptName { get; set; }
 
         //Get User Path
-        static string battlePath = Directory.GetFiles("data\\battle files\\script", "tut_battle.xml", SearchOption.AllDirectories)[0];
+        private static readonly string BattlePath = Directory.GetFiles("data\\battle files\\script",
+            "tut_battle.xml", SearchOption.AllDirectories)[0];
 
         public static void ClearFile()
         {
@@ -32,7 +26,7 @@ namespace Crusader_Wars
             bool isCreated = false;
             if (isCreated == false)
             {
-                using (FileStream logFile = File.Open(battlePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
+                using (FileStream logFile = File.Open(BattlePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
                 {
                     //File.Create(path_log); 
                     isCreated = true;
@@ -524,7 +518,7 @@ namespace Crusader_Wars
             string PR_CreateBattle = "<?xml version=\"1.0\"?>\n" +
                                      "<battle>\n";
 
-            File.AppendAllText(battlePath, PR_CreateBattle);
+            File.AppendAllText(BattlePath, PR_CreateBattle);
 
         }
 
@@ -532,7 +526,7 @@ namespace Crusader_Wars
         {
             string PR_OpenAlliance = "<alliance id=\"0\">\n";
 
-            File.AppendAllText(battlePath, PR_OpenAlliance);
+            File.AppendAllText(BattlePath, PR_OpenAlliance);
 
         }
 
@@ -540,7 +534,7 @@ namespace Crusader_Wars
         {
             string PR_OpenArmy = "<army>\n\n";
 
-            File.AppendAllText(battlePath, PR_OpenArmy);
+            File.AppendAllText(BattlePath, PR_OpenArmy);
         }
 
         private static void AddArmyName(string name)
@@ -549,7 +543,7 @@ namespace Crusader_Wars
             {
                 string PR_ArmyName = $"<army_name>{name}</army_name>\n\n";
 
-                File.AppendAllText(battlePath, PR_ArmyName);
+                File.AppendAllText(BattlePath, PR_ArmyName);
             }
             
         }
@@ -558,7 +552,7 @@ namespace Crusader_Wars
         {
             string PR_PlayerFaction = $"<faction>{GetAOJFaction(army, true)}</faction>\n\n";
 
-            File.AppendAllText(battlePath, PR_PlayerFaction);
+            File.AppendAllText(BattlePath, PR_PlayerFaction);
         }
 
         // TEMPORARY CODE FOR AGE OF JUSTINIAN REPEATED UNIT KEYS
@@ -611,7 +605,7 @@ namespace Crusader_Wars
         {
             string PR_Deployment = Deployments.beta_GetDeployment(combat_side); 
 
-            File.AppendAllText(battlePath, PR_Deployment);
+            File.AppendAllText(BattlePath, PR_Deployment);
 
         }
 
@@ -623,7 +617,7 @@ namespace Crusader_Wars
                 int army_soldiers = army.Units.Sum(unit => unit.GetSoldiers());
                 army.SetDefences(new DefensiveSystem(army_soldiers, army.Commander.Martial, deployables_boost));
                 string PR_DefensiveDeployments = army.Defences.GetText();
-                File.AppendAllText(battlePath, PR_DefensiveDeployments);
+                File.AppendAllText(BattlePath, PR_DefensiveDeployments);
             }
         }
 
@@ -689,8 +683,8 @@ namespace Crusader_Wars
                 //Adding the rest soldiers to the first unit
                 if (i == 0) numSoldiers += numRest;
 
-                Unit_Script_Name = unitScript + i.ToString();
-                string PR_Unit = $"<unit num_soldiers= \"{numSoldiers}\" script_name= \"{Unit_Script_Name}\">\n" +
+                UnitScriptName = unitScript + i.ToString();
+                string PR_Unit = $"<unit num_soldiers= \"{numSoldiers}\" script_name= \"{UnitScriptName}\">\n" +
                  $"<unit_type type=\"{troopKey}\"/>\n" +
                  $"<position x=\"{Position.X}\" y=\"{Position.Y}\"/>\n" +
                  $"<orientation radians=\"{Rotation}\"/>\n" +
@@ -710,12 +704,12 @@ namespace Crusader_Wars
                 if (i == 0) numSoldiers -= numRest;
 
                 //Adds Declarations and Locals to the Battle Files
-                DeclarationsFile.AddUnitDeclaration("UNIT" + Unit_Script_Name, Unit_Script_Name);
-                BattleScript.SetLocals(Unit_Script_Name, "UNIT" + Unit_Script_Name);
-                Data.units_scripts.Add((Unit_Script_Name, "UNIT" + Unit_Script_Name));
+                DeclarationsFile.AddUnitDeclaration("UNIT" + UnitScriptName, UnitScriptName);
+                BattleScript.SetLocals(UnitScriptName, "UNIT" + UnitScriptName);
+                Data.units_scripts.Add((UnitScriptName, "UNIT" + UnitScriptName));
                 
                 //Write to file
-                File.AppendAllText(battlePath, PR_Unit);
+                File.AppendAllText(BattlePath, PR_Unit);
             }
 
             //Add vertical spacing between units
@@ -741,9 +735,9 @@ namespace Crusader_Wars
 
                 for (int i = 0; i < 1; i++)
                 {
-                    Unit_Script_Name = unitScript + i.ToString();
+                    UnitScriptName = unitScript + i.ToString();
 
-                    string PR_General = $"<unit num_soldiers= \"{numberOfSoldiers}\" script_name= \"{Unit_Script_Name}\">\n" +
+                    string PR_General = $"<unit num_soldiers= \"{numberOfSoldiers}\" script_name= \"{UnitScriptName}\">\n" +
                      $"<unit_type type=\"{troopType}\"/>\n" +
                      $"<position x=\"{Position.X}\" y=\"{Position.Y}\"/>\n" +
                      $"<orientation radians=\"{Rotation}\"/>\n" +
@@ -783,10 +777,10 @@ namespace Crusader_Wars
                         Position.AddUnitYSpacing(direction);
                     }
 
-                    DeclarationsFile.AddUnitDeclaration("UNIT" + Unit_Script_Name, Unit_Script_Name);
-                    BattleScript.SetLocals(Unit_Script_Name, "UNIT" + Unit_Script_Name);
-                    Data.units_scripts.Add((Unit_Script_Name, "UNIT" + Unit_Script_Name));
-                    File.AppendAllText(battlePath, PR_General);
+                    DeclarationsFile.AddUnitDeclaration("UNIT" + UnitScriptName, UnitScriptName);
+                    BattleScript.SetLocals(UnitScriptName, "UNIT" + UnitScriptName);
+                    Data.units_scripts.Add((UnitScriptName, "UNIT" + UnitScriptName));
+                    File.AppendAllText(BattlePath, PR_General);
                 }
 
                 //Add vertical spacing between units
@@ -814,9 +808,9 @@ namespace Crusader_Wars
 
             for (int i = 0; i < 1; i++)
             {
-                Unit_Script_Name = unitScript + i.ToString();
+                UnitScriptName = unitScript + i.ToString();
 
-                string PR_Unit = $"<unit num_soldiers= \"{numberOfSoldiers}\" script_name= \"{Unit_Script_Name}\">\n" +
+                string PR_Unit = $"<unit num_soldiers= \"{numberOfSoldiers}\" script_name= \"{UnitScriptName}\">\n" +
                  $"<unit_type type=\"{troopType}\"/>\n" +
                  $"<position x=\"{Position.X}\" y=\"{Position.Y}\"/>\n" +
                  $"<orientation radians=\"{Rotation}\"/>\n" +
@@ -855,10 +849,10 @@ namespace Crusader_Wars
                     Position.AddUnitXSpacing(direction);
 
 
-                DeclarationsFile.AddUnitDeclaration("UNIT" + Unit_Script_Name, Unit_Script_Name);
-                BattleScript.SetLocals(Unit_Script_Name, "UNIT" + Unit_Script_Name);
-                Data.units_scripts.Add((Unit_Script_Name, "UNIT" + Unit_Script_Name));
-                File.AppendAllText(battlePath, PR_Unit);
+                DeclarationsFile.AddUnitDeclaration("UNIT" + UnitScriptName, UnitScriptName);
+                BattleScript.SetLocals(UnitScriptName, "UNIT" + UnitScriptName);
+                Data.units_scripts.Add((UnitScriptName, "UNIT" + UnitScriptName));
+                File.AppendAllText(BattlePath, PR_Unit);
             }
 
             //Add vertical spacing between units
@@ -878,7 +872,7 @@ namespace Crusader_Wars
                                 "</victory_condition>\n" +
                                 "<rout_position x=\"0.00\" y=\"0.00\"/>\n\n";
 
-            File.AppendAllText(battlePath, PR_Victory);
+            File.AppendAllText(BattlePath, PR_Victory);
 
 
         }
@@ -887,14 +881,14 @@ namespace Crusader_Wars
         {
             string PR_CloseArmy = "</army>\n\n";
 
-            File.AppendAllText(battlePath, PR_CloseArmy);
+            File.AppendAllText(BattlePath, PR_CloseArmy);
 
         }
         private static void CloseReinforcementArmy()
         {
             string PR_CloseArmy = "</reinforcement_army>\n\n";
 
-            File.AppendAllText(battlePath, PR_CloseArmy);
+            File.AppendAllText(BattlePath, PR_CloseArmy);
 
         }
 
@@ -902,7 +896,7 @@ namespace Crusader_Wars
         {
             string PR_CloseAlliance = "</alliance>\n\n";
 
-            File.AppendAllText(battlePath, PR_CloseAlliance);
+            File.AppendAllText(BattlePath, PR_CloseAlliance);
 
 
         }
@@ -911,14 +905,14 @@ namespace Crusader_Wars
         {
             string PR_OpenAlliance = "<alliance id=\"1\">\n";
 
-            File.AppendAllText(battlePath, PR_OpenAlliance);
+            File.AppendAllText(BattlePath, PR_OpenAlliance);
         }
 
         private static void SetEnemyFaction(Army army)
         {
             string PR_EnemyFaction = $"<faction>{GetAOJFaction(army, false)}</faction>\n\n";
 
-            File.AppendAllText(battlePath, PR_EnemyFaction);
+            File.AppendAllText(BattlePath, PR_EnemyFaction);
         }
 
         private static void SetBattleDescription(Army army, int total_soldiers)
@@ -957,7 +951,7 @@ namespace Crusader_Wars
 
             string PR_PlayableArea = $"<playable_area dimension=\"{ModOptions.SetMapSize(total_soldiers)}\"/>\n\n";
 
-            File.AppendAllText(battlePath, PR_BattleDescription + PR_PlayableArea);
+            File.AppendAllText(BattlePath, PR_BattleDescription + PR_PlayableArea);
         }
 
         private static void SetBattleTerrain(string X, string Y, string weather_key, string attila_map)
@@ -976,14 +970,14 @@ namespace Crusader_Wars
                                         $"<tile_map_position x=\"{X}\" y=\"{Y}\">/</tile_map_position>\n" +
                                         "</battle_map_definition>\n\n";
 
-            File.AppendAllText(battlePath, PR_BattleTerrain);
+            File.AppendAllText(BattlePath, PR_BattleTerrain);
         }
 
         private static void CloseBattle()
         {
             string PR_CloseBattle = "</battle>\n";
 
-            File.AppendAllText(battlePath, PR_CloseBattle);
+            File.AppendAllText(BattlePath, PR_CloseBattle);
         }
 
 

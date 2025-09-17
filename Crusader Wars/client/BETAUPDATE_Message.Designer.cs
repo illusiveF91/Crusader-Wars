@@ -1,4 +1,4 @@
-﻿namespace Crusader_Wars.client.BETAUPDATE_Message
+﻿namespace Crusader_Wars.client
 {
     partial class BETAUPDATE_Message
     {

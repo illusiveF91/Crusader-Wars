@@ -1,4 +1,4 @@
-﻿namespace Crusader_Wars
+﻿namespace Crusader_Wars.client.Options
 {
     partial class Options
     {

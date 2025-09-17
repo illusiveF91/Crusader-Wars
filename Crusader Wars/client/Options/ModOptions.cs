@@ -1,16 +1,10 @@
-﻿using Crusader_Wars.data.save_file;
-using Crusader_Wars.terrain;
-using Microsoft.SqlServer.Server;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
+using Crusader_Wars.data.save_file;
 
-namespace Crusader_Wars.client
+namespace Crusader_Wars.client.Options
 {
     internal static class ModOptions
     {

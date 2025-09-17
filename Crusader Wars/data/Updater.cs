@@ -6,8 +6,6 @@ using System.Net.NetworkInformation;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Text.Json;
-using System.Xml.Linq;
-using System.Drawing;
 
 namespace Crusader_Wars
 {

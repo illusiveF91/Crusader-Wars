@@ -10,6 +10,8 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Input;
+using Crusader_Wars.client.Options;
+using Crusader_Wars.twbattle;
 
 namespace Crusader_Wars.data.save_file
 {

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web.UI.WebControls;
+using Crusader_Wars.twbattle;
 
 namespace Crusader_Wars.data.save_file
 {

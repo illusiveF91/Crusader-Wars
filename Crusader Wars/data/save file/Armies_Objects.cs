@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Crusader_Wars.unit_mapper;
 using System.Xml;
+using Crusader_Wars.client.Options;
 
 namespace Crusader_Wars.data.save_file
 {

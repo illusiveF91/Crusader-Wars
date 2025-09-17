@@ -1,5 +1,6 @@
 ﻿using Crusader_Wars.client;
 using System;
+using Crusader_Wars.client.Options;
 
 namespace Crusader_Wars
 {

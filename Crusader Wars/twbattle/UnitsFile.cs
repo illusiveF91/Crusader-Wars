@@ -1,88 +1,77 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Crusader_Wars.client;
-using Crusader_Wars.unit_mapper;
+using Crusader_Wars.armies.commander_traits;
+using Crusader_Wars.client.Options;
 using Crusader_Wars.data.save_file;
 using Crusader_Wars.terrain;
-using System.Windows;
-using Crusader_Wars.armies.commander_traits;
-using System.Runtime.CompilerServices;
-using Crusader_Wars.armies;
+using Crusader_Wars.unit_mapper;
 
-namespace Crusader_Wars
+namespace Crusader_Wars.twbattle
 {
     public static class UnitsFile
     {
-        public static int MAX_LEVIES_UNIT_NUMBER = ModOptions.GetLevyMax();
-        public static int MAX_CAVALRY_UNIT_NUMBER = ModOptions.GetCavalryMax();
-        public static int MAX_INFANTRY_UNIT_NUMBER = ModOptions.GetInfantryMax();
-        public static int MAX_RANGED_UNIT_NUMBER = ModOptions.GetRangedMax();
+        public static int MaxLeviesUnitNumber = ModOptions.GetLevyMax();
+        public static int MaxCavalryUnitNumber = ModOptions.GetCavalryMax();
+        public static int MaxInfantryUnitNumber = ModOptions.GetInfantryMax();
+        public static int MaxRangedUnitNumber = ModOptions.GetRangedMax();
 
         public static CommanderTraits PlayerCommanderTraits;
         public static CommanderTraits EnemyCommanderTraits;
 
         public static (int UnitSoldiers, int UnitNum, int SoldiersRest) RetriveCalculatedUnits(int soldiers, int unit_limit)
         {
-            //if it's a special unit like siege equipement, monsters, etc...
+            //if it's a special unit like siege equipment, monsters, etc...
             if (unit_limit == 1111)
             {
-                int special_num = soldiers / 10; //10, because siege equipement is 10 persons one equipement
-                return (special_num, 1, 0);
+                var specialNum = soldiers / 10; //10, because siege equipment is 10 persons one equipment
+                return (specialNum, 1, 0);
             }
 
-            int unit_num;
-            for (int i = 1; i <= soldiers; i++)
+            for (var i = 1; i <= soldiers; i++)
             {
-                int result = soldiers / i;
+                var result = soldiers / i;
 
-                if (result <= unit_limit)
-                {
-                    unit_num = i;
-                    int rest = soldiers % i;
+                if (result > unit_limit) continue;
+                var unitNum = i;
+                var rest = soldiers % i;
 
-                    return (result, unit_num, rest);
-                }
+                return (result, unitNum, rest);
 
             }
 
             return (0, 0, 0);
         }
 
-        static int i;
+        private static int _i;
         public static void BETA_ConvertandAddArmyUnits(Army army)
         {
 
             BETA_AddArmyUnits(army);
-            if(army.MergedArmies != null)
+            if (army.MergedArmies == null) return;
+            foreach(var mergedArmy in army.MergedArmies)
             {
-                foreach(Army merged_army in army.MergedArmies)
-                {
-                    BETA_AddArmyUnits(merged_army);
-                }
+                BETA_AddArmyUnits(mergedArmy);
             }
         }
 
         public static CommanderTraits GetCommanderTraitsObj(bool isPlayer)
         {
-            if (isPlayer && PlayerCommanderTraits != null)
+            switch (isPlayer)
             {
-                return PlayerCommanderTraits;
+                case true when PlayerCommanderTraits != null:
+                    return PlayerCommanderTraits;
+                case false when EnemyCommanderTraits != null:
+                    return EnemyCommanderTraits;
+                default:
+                    return null;
             }
-            else if (!isPlayer && EnemyCommanderTraits != null)
-            {
-                return EnemyCommanderTraits;
-            }
-            return null;
         }
 
-        static int GetTraitsXP(bool isPlayer,string combatSide, string terrainType, bool isRiverCrossing, bool isHostileFaith, bool isWinter)
+        private static int GetTraitsXP(bool isPlayer,string combatSide, string terrainType, bool isRiverCrossing, bool isHostileFaith, bool isWinter)
         {
-            var commander_traits =  GetCommanderTraitsObj(isPlayer);
-            if (commander_traits != null)
-                return commander_traits.GetBenefits(combatSide, terrainType, isRiverCrossing, isHostileFaith, isWinter);
-
-            return 0;
+            var commanderTraits =  GetCommanderTraitsObj(isPlayer);
+            return commanderTraits?.GetBenefits(combatSide, terrainType, isRiverCrossing, isHostileFaith, isWinter) ?? 0;
         }
 
 
@@ -90,34 +79,37 @@ namespace Crusader_Wars
         {
             army.RemoveNullUnits();
 
-            i = 0;
-            int modifiers_xp = 0;
-            int traits_xp = 0;
-            int army_xp = 0;
+            _i = 0;
+            var modifiersXp = 0;
+            var traitsXp = 0;
+            var armyXp = 0;
 
-            if (TerrainGenerator.isStrait || TerrainGenerator.isRiver && army.CombatSide == "attacker") { modifiers_xp -= 2; }
+            if (TerrainGenerator.isStrait || TerrainGenerator.isRiver && army.CombatSide == "attacker") 
+            {
+                modifiersXp -= 2;
+            }
 
             //##################
             //                 #
             //    COMMANDER    #
             //                 #
             //##################
-            int commander_army_xp = 0;
+            var commanderArmyXp = 0;
             if (army.Commander != null)
             {
-                commander_army_xp = army.Commander.GetUnitsExperience();
-                int commander_xp = army.Commander.GetCommanderExperience();
-                int commander_soldiers = army.Commander.GetUnitSoldiers();
+                commanderArmyXp = army.Commander.GetUnitsExperience();
+                var commanderXp = army.Commander.GetCommanderExperience();
+                var commanderSoldiers = army.Commander.GetUnitSoldiers();
                 
-                Unit commander_unit = new Unit("General", commander_soldiers, army.Commander.GetCultureObj(), RegimentType.Commander, false, army.Owner);
+                var commander_unit = new Unit("General", commanderSoldiers, army.Commander.GetCultureObj(), RegimentType.Commander, false, army.Owner);
                 commander_unit.SetAttilaFaction(UnitMappers_BETA.GetAttilaFaction(army.Commander.GetCultureName(), army.Commander.GetHeritageName()));
                 commander_unit.SetUnitKey(UnitMappers_BETA.GetUnitKey(commander_unit));
                 army.Units.Insert(0, commander_unit);
 
                 
-                string general_script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPEcommander{army.Commander.ID}_CULTURE{army.Commander.GetCultureObj().ID}_";
-                BattleFile.AddGeneralUnit(army.Commander, commander_unit.GetAttilaUnitKey(), general_script_name, commander_xp, Deployments.beta_GeDirection(army.CombatSide));
-                i++;
+                string general_script_name = $"{_i}_{army.CombatSide}_army{army.ID}_TYPEcommander{army.Commander.ID}_CULTURE{army.Commander.GetCultureObj().ID}_";
+                BattleFile.AddGeneralUnit(army.Commander, commander_unit.GetAttilaUnitKey(), general_script_name, commanderXp, Deployments.beta_GeDirection(army.CombatSide));
+                _i++;
             }
 
 
@@ -143,13 +135,13 @@ namespace Crusader_Wars
 
                 string knights_script_name;
                 if (army.Knights.GetMajorCulture() != null)
-                    knights_script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPEknights_CULTURE{army.Knights.GetMajorCulture().ID}_";
+                    knights_script_name = $"{_i}_{army.CombatSide}_army{army.ID}_TYPEknights_CULTURE{army.Knights.GetMajorCulture().ID}_";
                 else
-                    knights_script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPEknights_CULTURE{army.Owner.GetCulture().ID}_";
+                    knights_script_name = $"{_i}_{army.CombatSide}_army{army.ID}_TYPEknights_CULTURE{army.Owner.GetCulture().ID}_";
 
 
                 BattleFile.AddKnightUnit(army.Knights, knights_unit.GetAttilaUnitKey(), knights_script_name, army.Knights.SetExperience(), Deployments.beta_GeDirection(army.CombatSide));
-                i++;
+                _i++;
             }
 
 
@@ -157,19 +149,19 @@ namespace Crusader_Wars
             //     ARMY XP     #
             //##################
             if (army.IsPlayer()) { 
-                traits_xp = GetTraitsXP(true, army.CombatSide, TerrainGenerator.TerrainType, TerrainGenerator.isRiver, false, Weather.HasWinter);
-                modifiers_xp = CK3LogData.LeftSide.GetModifiers().GetXP();
+                traitsXp = GetTraitsXP(true, army.CombatSide, TerrainGenerator.TerrainType, TerrainGenerator.isRiver, false, Weather.HasWinter);
+                modifiersXp = CK3LogData.LeftSide.GetModifiers().GetXP();
             }
             else { 
-                traits_xp = GetTraitsXP(false, army.CombatSide, TerrainGenerator.TerrainType, TerrainGenerator.isRiver, false, Weather.HasWinter);
-                modifiers_xp = CK3LogData.RightSide.GetModifiers().GetXP();
+                traitsXp = GetTraitsXP(false, army.CombatSide, TerrainGenerator.TerrainType, TerrainGenerator.isRiver, false, Weather.HasWinter);
+                modifiersXp = CK3LogData.RightSide.GetModifiers().GetXP();
             }
 
-            army_xp += commander_army_xp;
-            army_xp += modifiers_xp;
-            army_xp += traits_xp;
-            if (army_xp < 0) { army_xp = 0; }
-            if (army_xp > 9) { army_xp = 9; }
+            armyXp += commanderArmyXp;
+            armyXp += modifiersXp;
+            armyXp += traitsXp;
+            if (armyXp < 0) { armyXp = 0; }
+            if (armyXp > 9) { armyXp = 9; }
 
             //##################
             //                 #
@@ -189,7 +181,7 @@ namespace Crusader_Wars
                     }
 
                     var levy_porcentages = UnitMappers_BETA.GetFactionLevies(levy_culture.GetAttilaFaction());
-                    BETA_LevyComposition(levy_culture, army, levy_porcentages, army_xp);
+                    BETA_LevyComposition(levy_culture, army, levy_porcentages, armyXp);
                 }
             }
 
@@ -212,8 +204,8 @@ namespace Crusader_Wars
                 //If is retinue maa, increase 2xp.
                 if (unitName.Contains("accolade"))
                 {
-                    string unit_script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPE{unit.GetName()}_CULTURE{unit.GetObjCulture().ID}_";
-                    int accolade_xp = army_xp + 2;
+                    string unit_script_name = $"{_i}_{army.CombatSide}_army{army.ID}_TYPE{unit.GetName()}_CULTURE{unit.GetObjCulture().ID}_";
+                    int accolade_xp = armyXp + 2;
                     if (accolade_xp < 0) accolade_xp = 0;
                     if (accolade_xp > 9) accolade_xp = 9;
                     BattleFile.AddUnit(unit.GetAttilaUnitKey(), MAA_Data.UnitSoldiers, MAA_Data.UnitNum, MAA_Data.SoldiersRest, unit_script_name, accolade_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
@@ -221,10 +213,10 @@ namespace Crusader_Wars
                 //If is normal maa
                 else
                 {
-                    string unit_script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPE{unit.GetName()}_CULTURE{unit.GetObjCulture().ID}_";
-                    BattleFile.AddUnit(unit.GetAttilaUnitKey(), MAA_Data.UnitSoldiers, MAA_Data.UnitNum, MAA_Data.SoldiersRest, unit_script_name, army_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
+                    string unit_script_name = $"{_i}_{army.CombatSide}_army{army.ID}_TYPE{unit.GetName()}_CULTURE{unit.GetObjCulture().ID}_";
+                    BattleFile.AddUnit(unit.GetAttilaUnitKey(), MAA_Data.UnitSoldiers, MAA_Data.UnitNum, MAA_Data.SoldiersRest, unit_script_name, armyXp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
                 }
-                i++;
+                _i++;
 
 
             }
@@ -251,9 +243,9 @@ namespace Crusader_Wars
             {
                 Random r = new Random();
                 var random = faction_levy_porcentages[r.Next(faction_levy_porcentages.Count - 1)];
-                string script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPELevy{random.porcentage}_CULTURE{unit.GetObjCulture().ID}_";
+                string script_name = $"{_i}_{army.CombatSide}_army{army.ID}_TYPELevy{random.porcentage}_CULTURE{unit.GetObjCulture().ID}_";
                 BattleFile.AddUnit(random.unit_key, Levies_Data.UnitSoldiers, 1, Levies_Data.SoldiersRest, script_name, army_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
-                i++;
+                _i++;
                 return;
             }
 
@@ -274,9 +266,9 @@ namespace Crusader_Wars
                 var levy_type_data = RetriveCalculatedUnits(result, unit.GetMax());
                 compareNum += (levy_type_data.UnitSoldiers * levy_type_data.UnitNum);
                 //if (Levies_Data.UnitNum * t >= 0.5 && Levies_Data.UnitNum * t < 1) result = 1;
-                string script_name = $"{i}_{army.CombatSide}_army{army.ID}_TYPELevy{porcentageData.porcentage}_CULTURE{unit.GetObjCulture().ID}_";
+                string script_name = $"{_i}_{army.CombatSide}_army{army.ID}_TYPELevy{porcentageData.porcentage}_CULTURE{unit.GetObjCulture().ID}_";
                 BattleFile.AddUnit(porcentageData.unit_key, levy_type_data.UnitSoldiers, levy_type_data.UnitNum, levy_type_data.SoldiersRest, script_name, army_xp.ToString(), Deployments.beta_GeDirection(army.CombatSide));
-                i++;
+                _i++;
             }
 
         }
