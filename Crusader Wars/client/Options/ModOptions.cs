@@ -223,8 +223,6 @@ namespace Crusader_Wars.client.Options
             {
                 case "Disabled":
                     return false;
-                case "Enabled":
-                    return true;
                 default:
                     return true;
             }
@@ -232,7 +230,7 @@ namespace Crusader_Wars.client.Options
 
         public static int CulturalPreciseness()
         {
-            int minumum = 5;
+            const int minumum = 5;
             return minumum;
         }
 

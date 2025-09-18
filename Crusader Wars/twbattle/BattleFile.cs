@@ -411,8 +411,8 @@ namespace Crusader_Wars.twbattle
 
 
             // TOTAL SOLDIERS
-            int total_soldiers = 0;
-            total_soldiers = temp_attacker_armies.SelectMany(army => army.Units).Sum(unit => unit.GetSoldiers()) +
+            var totalSoldiers = 0;
+            totalSoldiers = temp_attacker_armies.SelectMany(army => army.Units).Sum(unit => unit.GetSoldiers()) +
                              temp_defender_armies.SelectMany(army => army.Units).Sum(unit => unit.GetSoldiers());
 
             //  BATTLE MAP
@@ -420,36 +420,40 @@ namespace Crusader_Wars.twbattle
             var playerCommanderTraits = UnitsFile.GetCommanderTraitsObj(true);
             var enemyCommanderTraits = UnitsFile.GetCommanderTraitsObj(true);
 
-            bool shouldPlayerRotateDeployment = playerCommanderTraits?.ShouldRotateDeployment(player_main_army.CombatSide, TerrainGenerator.TerrainType) ?? false;
-            bool shouldEnemyRotateDeployment = enemyCommanderTraits?.ShouldRotateDeployment(enemy_main_army.CombatSide, TerrainGenerator.TerrainType) ?? false;
+            var shouldPlayerRotateDeployment = playerCommanderTraits?.ShouldRotateDeployment(player_main_army.CombatSide,
+                TerrainGenerator.TerrainType) ?? false;
+            var shouldEnemyRotateDeployment = enemyCommanderTraits?.ShouldRotateDeployment(enemy_main_army.CombatSide,
+                TerrainGenerator.TerrainType) ?? false;
 
             if (shouldPlayerRotateDeployment || shouldEnemyRotateDeployment)
             {
-                Deployments.beta_SetSidesDirections(total_soldiers, battleMap, true);
+                Deployments.beta_SetSidesDirections(totalSoldiers, battleMap, true);
             }
             else
-                Deployments.beta_SetSidesDirections(total_soldiers, battleMap, false);
+                Deployments.beta_SetSidesDirections(totalSoldiers, battleMap, false);
 
 
 
 
-            //  ALL CONTROLED ARMIES
+            //  ALL CONTROLLED ARMIES
             //
-            if (ModOptions.SeparateArmies() == ModOptions.ArmiesSetup.All_Controled)
+            var separateArmies = ModOptions.SeparateArmies();
+            switch (separateArmies)
             {
-                AllControledArmies(temp_attacker_armies, temp_defender_armies, player_main_army, enemy_main_army, total_soldiers, battleMap);
-            }
-            //  FRIENDLIES ONLY ARMIES
-            //
-            else if (ModOptions.SeparateArmies() == ModOptions.ArmiesSetup.Friendly_Only)
-            {
-                FriendliesOnlyArmies(temp_attacker_armies, temp_defender_armies, player_main_army, enemy_main_army, total_soldiers, battleMap);
-            }
-            //  ALL SEPARATE ARMIES
-            //
-            else if (ModOptions.SeparateArmies() == ModOptions.ArmiesSetup.All_Separate)
-            {
-                AllSeparateArmies(temp_attacker_armies, temp_defender_armies, player_main_army, enemy_main_army, total_soldiers, battleMap);
+                case ModOptions.ArmiesSetup.All_Controled:
+                    AllControledArmies(temp_attacker_armies, temp_defender_armies, player_main_army, enemy_main_army, totalSoldiers, battleMap);
+                    break;
+                case ModOptions.ArmiesSetup.Friendly_Only:
+                //  FRIENDLIES ONLY ARMIES
+                    FriendliesOnlyArmies(temp_attacker_armies, temp_defender_armies, player_main_army, enemy_main_army, totalSoldiers, battleMap);
+                    break;
+                case ModOptions.ArmiesSetup.All_Separate:
+                //  ALL SEPARATE ARMIES//
+                    AllSeparateArmies(temp_attacker_armies, temp_defender_armies, player_main_army, enemy_main_army, totalSoldiers, battleMap);
+                    break;
+                default:
+                    FriendliesOnlyArmies(temp_attacker_armies, temp_defender_armies, player_main_army, enemy_main_army, totalSoldiers, battleMap);
+                    break;
             }
 
             if (ModOptions.UnitCards())

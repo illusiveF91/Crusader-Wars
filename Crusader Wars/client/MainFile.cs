@@ -230,20 +230,20 @@ namespace Crusader_Wars
             string gamestateFile = @".\data\save_file_data\gamestate_file\gamestate";
             string editedGamestateFile = @".\data\save_file_data\gamestate";
             string savefileZip = @".\data\save_file_data\last_save.zip";
-            if (System.IO.File.Exists(gamestateFile) )
-                System.IO.File.Delete(gamestateFile);
-            if (System.IO.File.Exists(editedGamestateFile))
-                System.IO.File.Delete(editedGamestateFile);
-            if (System.IO.File.Exists(savefileZip))
-                System.IO.File.Delete(savefileZip);
-
+            if (File.Exists(gamestateFile) )
+                File.Delete(gamestateFile);
+            if (File.Exists(editedGamestateFile))
+                File.Delete(editedGamestateFile);
+            if (File.Exists(savefileZip))
+                File.Delete(savefileZip);
+  
             UnitsCardsNames.RemoveFiles();
 
             while (true)
             {
 
                 infoLabel.Text = "Ready to start!";
-                this.Text = "Crusader Wars (Waiting for battle...)";
+                Text = "Crusader Wars (Waiting for battle...)";
 
                 // try
                 // {
@@ -295,13 +295,13 @@ namespace Crusader_Wars
 
                 BattleFile.ClearFile();
 
-                bool battleHasStarted = false;
+                var battleHasStarted = false;
 
                 //Read log file and get all data from CK3
-                using (FileStream logFile = System.IO.File.Open(debugLog_Path, FileMode.Open, FileAccess.Read, FileShare.Delete | FileShare.ReadWrite))
+                using (var logFile = File.Open(debugLog_Path, FileMode.Open, FileAccess.Read, FileShare.Delete | FileShare.ReadWrite))
                 {
 
-                    using (StreamReader reader = new StreamReader(logFile))
+                    using (var reader = new StreamReader(logFile))
                     {
                         logFile.Position = 0;
                         reader.DiscardBufferedData();
@@ -315,14 +315,12 @@ namespace Crusader_Wars
                                 //Read each line
                                 while (!reader.EndOfStream)
                                 {
-                                    string line = reader.ReadLine();
+                                    var line = reader.ReadLine();
 
                                     //If Battle Started
-                                    if (line.Contains(SEARCH_KEY))
-                                    {
-                                        battleHasStarted = true;
-                                        break;
-                                    }
+                                    if (line != null && !line.Contains(SEARCH_KEY)) continue;
+                                    battleHasStarted = true;
+                                    break;
 
                                 }
                                 logFile.Position = 0;
@@ -336,7 +334,7 @@ namespace Crusader_Wars
                             MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                             infoLabel.Text = "Ready to start!";
                             ExecuteButton.Enabled = true;
-                            this.Text = "Crusader Wars";
+                            Text = "Crusader Wars";
                             CloseLoadingScreen();
                             break;
                         }
@@ -348,31 +346,28 @@ namespace Crusader_Wars
                             StartLoadingScreen();
 
                             infoLabel.Text = "Reading battle data...";
-                            this.Text = "Crusader Wars (Reading battle data...)";
-                            this.Hide();
+                            Text = "Crusader Wars (Reading battle data...)";
+                            Hide();
 
                             logFile.Position = 0;
                             reader.DiscardBufferedData();
                             log = reader.ReadToEnd();
                             log = RemoveASCII(log);
 
-                            if (battleHasStarted)
-                            {
-                                DataSearch.Search(log);
-                                AttilaModManager.ReadInstalledMods();
-                                SetPlaythrough();
-                                UpdateLoadingScreenUnitMapperMessage(UnitMappers_BETA.GetLoadedUnitMapperString());
-                                AttilaModManager.CreateUserModsFile();
-                            }
+                            DataSearch.Search(log);
+                            AttilaModManager.ReadInstalledMods();
+                            SetPlaythrough();
+                            UpdateLoadingScreenUnitMapperMessage(UnitMappers_BETA.GetLoadedUnitMapperString());
+                            AttilaModManager.CreateUserModsFile();
                         }
                         catch(Exception ex)
                         {
-                            this.Show();
+                            Show();
                             CloseLoadingScreen();
                             MessageBox.Show($"Error reading battle data: {ex.Message}", "Data Error",
                             MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                             infoLabel.Text = "Waiting for battle...";
-                            this.Text = "Crusader Wars (Waiting for battle...)";
+                            Text = "Crusader Wars (Waiting for battle...)";
 
                             //Data Clear
                             Data.Reset();
@@ -407,7 +402,7 @@ namespace Crusader_Wars
                 }
                 catch(Exception ex)
                 {
-                    this.Show();
+                    Show();
                     CloseLoadingScreen();
                     MessageBox.Show($"Error reading the save file: {ex.Message}", "Save File Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
@@ -432,13 +427,13 @@ namespace Crusader_Wars
                 }
                 catch(Exception ex)
                 {
-                    this.Show();
+                    Show();
                     CloseLoadingScreen();
                     MessageBox.Show($"Error reading the battle armies: {ex.Message}\nDon't play in Ironman or in debug mode!\nYour Crusader Kings III saves MUST NOT be on the steam cloud.", "Beta Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                     ProcessCommands.ResumeProcess();
                     infoLabel.Text = "Waiting for battle...";
-                    this.Text = "Crusader Wars (Waiting for battle...)";
+                    Text = "Crusader Wars (Waiting for battle...)";
 
                     //Data Clear
                     Data.Reset();
@@ -448,10 +443,10 @@ namespace Crusader_Wars
 
                 var left_side = ArmiesReader.GetSideArmies("left");
                 var right_side = ArmiesReader.GetSideArmies("right");
-                int left_side_total = left_side.Sum(army => army.GetTotalSoldiers());
-                int right_side_total = right_side.Sum(army => army.GetTotalSoldiers());
-                string left_side_combat_side = left_side[0].CombatSide;
-                string right_side_combat_side = right_side[0].CombatSide;
+                var left_side_total = left_side.Sum(army => army.GetTotalSoldiers());
+                var right_side_total = right_side.Sum(army => army.GetTotalSoldiers());
+                var left_side_combat_side = left_side[0].CombatSide;
+                var right_side_combat_side = right_side[0].CombatSide;
 
 
 
@@ -467,9 +462,9 @@ namespace Crusader_Wars
                     BattleScript.CreateScript();
 
                     // Set Battle Scale
-                    int total_soldiers = attacker_armies.SelectMany(army => army.Units).Sum(unit => unit.GetSoldiers()) +
+                    var totalSoldiers = attacker_armies.SelectMany(army => army.Units).Sum(unit => unit.GetSoldiers()) +
                                          defender_armies.SelectMany(army => army.Units).Sum(unit => unit.GetSoldiers());
-                    ArmyProportions.AutoSizeUnits(total_soldiers);
+                    ArmyProportions.AutoSizeUnits(totalSoldiers);
                     foreach (var army in attacker_armies) army.ScaleUnits(ModOptions.GetBattleScale());
                     foreach (var army in defender_armies) army.ScaleUnits(ModOptions.GetBattleScale());
 

@@ -68,15 +68,8 @@ namespace Crusader_Wars.data.attila_settings
                 attila_settings_file.Close();
             }
 
-            Match isCorrect = Regex.Match(unit_size_setting, @"gfx_unit_size 3");
-            if(isCorrect.Success) 
-            {
-                return true;
-            }
-            else 
-            { 
-                return false; 
-            }
+            var isCorrect = Regex.Match(unit_size_setting, @"gfx_unit_size 3");
+            return isCorrect.Success;
 
         }
     }

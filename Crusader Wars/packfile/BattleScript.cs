@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
+using System.Linq;
 
 
 namespace Crusader_Wars
@@ -60,16 +61,20 @@ namespace Crusader_Wars
             File.AppendAllText(filePath, local);
         }
 
-        public static void SetLocalsKills(List<(string unitName, string declarationName)> units_scripts_list)
+        public static void SetLocalsKills(List<(string unitName, string declarationName)> unitsScriptsList)
         {
             //Units Script Start
-            string start = $"\n\nfunction kills()\r\n    dev.log(\"-----NUMBERS OF KILLS-----!!\")";
+            var start = $"\n\nfunction kills()\r\n    dev.log(\"-----NUMBERS OF KILLS-----!!\")";
             File.AppendAllText(filePath, start);
 
             //Units Locals Kills
-            foreach (var unit in units_scripts_list)
+            foreach (
+                var locals in unitsScriptsList.Select(
+                    unit => 
+                        $"\n\tdev.log(\"kills_{unit.unitName}-\".. {unit.declarationName}.unit:number_of_enemies_killed())"
+                    )
+                )
             {
-                string locals = $"\n\tdev.log(\"kills_{unit.unitName}-\".. {unit.declarationName}.unit:number_of_enemies_killed())";
                 File.AppendAllText(filePath, locals);
             }
 

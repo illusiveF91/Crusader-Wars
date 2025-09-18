@@ -131,7 +131,7 @@ namespace Crusader_Wars
             ArmyProportions.SetRatio(ModOptions.GetBattleScale());
 
             /*---------------------------------------------
-             * :::::::::::::::::::Geral Data:::::::::::::::
+             * :::::::::::::::::::General Data:::::::::::::::
              ---------------------------------------------*/
 
             DateSearch(log);

@@ -164,13 +164,15 @@ namespace Crusader_Wars.data.save_file
                                 break;
                             }
                             //Commanders
-                            else if (army.Commander != null && army.Commander.GetCultureObj() != null && army.Commander.GetCultureObj().ID == culture_id)
+
+                            if (army.Commander != null && army.Commander.GetCultureObj() != null && army.Commander.GetCultureObj().ID == culture_id)
                             {
                                 isSearchStared = true;
                                 break;
                             }
                             //Knights
-                            else if (army.Knights != null && army.Knights.GetKnightsList() != null)
+
+                            if (army.Knights != null && army.Knights.GetKnightsList() != null)
                             {
                                 foreach (var knight in army.Knights.GetKnightsList())
                                 {
@@ -196,11 +198,13 @@ namespace Crusader_Wars.data.save_file
                                     {
                                         continue;
                                     }
-                                    else if(string.IsNullOrEmpty(regiment.Culture.ID))
+
+                                    if(string.IsNullOrEmpty(regiment.Culture.ID))
                                     {
                                         continue;
                                     }
-                                    else if(regiment.Culture.ID == culture_id)
+
+                                    if(regiment.Culture.ID == culture_id)
                                     {
                                         isSearchStared = true;
                                         break;
@@ -571,7 +575,7 @@ namespace Crusader_Wars.data.save_file
         {
             foreach (var army in armies)
             {
-                List<(Regiment regiment, RegimentType type, string maa_name)> list = new List<(Regiment regiment, RegimentType type, string maa_name)>();
+                var list = new List<(Regiment regiment, RegimentType type, string maa_name)>();
                 foreach (var army_regiment in army.ArmyRegiments)
                 {
                     foreach (var regiment in army_regiment.Regiments)
@@ -580,7 +584,7 @@ namespace Crusader_Wars.data.save_file
                     }
                 }
 
-                List<Unit> units = new List<Unit>();
+                var units = new List<Unit>();
                 foreach (var regiment in list)
                 {
                     // if no soldiers, skip
@@ -589,25 +593,31 @@ namespace Crusader_Wars.data.save_file
                     if (Int32.Parse(ModOptions.FullArmies(regiment.regiment)) == 0) continue;
 
                     Unit unit;
-                    if (regiment.type == RegimentType.Levy)
-                        if (regiment.regiment.isMercenary())
+                    switch (regiment.type)
+                    {
+                        case RegimentType.Levy when regiment.regiment.isMercenary():
                             unit = new Unit("Levy", Int32.Parse(ModOptions.FullArmies(regiment.regiment)), regiment.regiment.Culture, regiment.type, true);
-                        else
+                            break;
+                        case RegimentType.Levy:
                             unit = new Unit("Levy", Int32.Parse(ModOptions.FullArmies(regiment.regiment)), regiment.regiment.Culture, regiment.type);
-                    else if (regiment.type == RegimentType.MenAtArms)
-                        if (regiment.regiment.isMercenary())
+                            break;
+                        case RegimentType.MenAtArms when regiment.regiment.isMercenary():
                             unit = new Unit(regiment.maa_name, Int32.Parse(ModOptions.FullArmies(regiment.regiment)), regiment.regiment.Culture, regiment.type, true);
-                        else
+                            break;
+                        case RegimentType.MenAtArms:
                             unit = new Unit(regiment.maa_name, Int32.Parse(ModOptions.FullArmies(regiment.regiment)), regiment.regiment.Culture, regiment.type);
-                    else
-                        continue;
+                            break;
+                        case RegimentType.Commander:
+                        case RegimentType.Knight:
+                        default:
+                            continue;
+                    }
 
-                    if (unit != null)
-                        units.Add(unit);
+                    units.Add(unit);
 
 
                 }
-
+                
                 units = OrganizeUnitsIntoCultures(units, army.Owner);
                 units = OrganizeLeviesUnits(units);
                 units = GetAllUnits_AttilaFaction(units);
@@ -623,15 +633,25 @@ namespace Crusader_Wars.data.save_file
             var organizedUnits = new List<Unit>();
 
             // Group units by Name and Culture
-            var groupedUnits = units.GroupBy(u => new { Name = u.GetName(), Culture = u.GetCulture(), Type = u.GetRegimentType(), IsMerc = u.IsMerc() });
+            var groupedUnits = units.GroupBy(u => 
+                new
+                {
+                    Name = u.GetName(), Culture = u.GetCulture(), Type = u.GetRegimentType(), IsMerc = u.IsMerc()
+                });
 
             // Merge units with the same Name and Culture
             foreach (var group in groupedUnits)
             {
-                int totalSoldiers = group.Sum(u => u.GetSoldiers());
+                var totalSoldiers = group.Sum(u => u.GetSoldiers());
 
                 // Create a new Unit with the merged NumberOfSoldiers
-                Unit mergedUnit = new Unit(group.Key.Name, totalSoldiers, group.ElementAt(0).GetObjCulture(), group.ElementAt(0).GetRegimentType(), group.ElementAt(0).IsMerc(), owner);
+                var mergedUnit = new Unit(
+                    group.Key.Name,
+                    totalSoldiers, 
+                    group.ElementAt(0).GetObjCulture(),
+                    group.ElementAt(0).GetRegimentType(),
+                    group.ElementAt(0).IsMerc(),
+                    owner);
                 
                 organizedUnits.Add(mergedUnit);
             }
@@ -639,51 +659,48 @@ namespace Crusader_Wars.data.save_file
             return organizedUnits;
         }
 
-        static List<Unit> OrganizeLeviesUnits(List<Unit> units)
+        private static List<Unit> OrganizeLeviesUnits(List<Unit> units)
         {
-            var unitsBelowThreshold = units.Where(u => u.GetSoldiers() <= ModOptions.CulturalPreciseness() && u.GetName() == "Levy").ToList();
+            var unitsBelowThreshold = units.Where(u => 
+                u.GetSoldiers() <= ModOptions.CulturalPreciseness() && u.GetName() == "Levy").ToList();
             if (unitsBelowThreshold.Count == 0) return units;
 
-            int total = 0;
+            var total = 0;
             Unit biggest = null;
-            int lastRegistered = 0;
+            var lastRegistered = 0;
             foreach (var u in unitsBelowThreshold)
             {
                 total += u.GetSoldiers();
-
-                if (u.GetSoldiers() > lastRegistered)
-                {
-                    lastRegistered = u.GetSoldiers();
-                    biggest = u;
-                }
-
+                if (u.GetSoldiers() <= lastRegistered) continue;
+                lastRegistered = u.GetSoldiers();
+                biggest = u;
             }
-
             var unit = new Unit("Levy", total, biggest.GetObjCulture(), RegimentType.Levy);
-            var unit_data = UnitsFile.RetriveCalculatedUnits(unit.GetSoldiers(), ModOptions.GetLevyMax());
-            var levies_top_cultures = GetTopUnits(unitsBelowThreshold, unit_data.UnitNum);
+            var unitData = UnitsFile.RetriveCalculatedUnits(unit.GetSoldiers(),
+                ModOptions.GetLevyMax());
+            var leviesTopCultures = GetTopUnits(unitsBelowThreshold, unitData.UnitNum);
 
-            int null_soldiers = 0;
+            var nullSoldiers = 0;
 
-            var null_cultures_levies = units.Where(x => x.GetObjCulture() == null).ToList();
-            if (null_cultures_levies.Count > 0)
+            var nullCulturesLevies = units.Where(x => x.GetObjCulture() == null).ToList();
+            if (nullCulturesLevies.Count > 0)
             {
-                foreach (var null_levie in null_cultures_levies)
+                foreach (var nullLevie in nullCulturesLevies)
                 {
-                    null_soldiers += null_levie.GetSoldiers();
-                    units.Remove(null_levie);
+                    nullSoldiers += nullLevie.GetSoldiers();
+                    units.Remove(nullLevie);
                 }
             }
 
 
-            int limit = ModOptions.CulturalPreciseness();
+            var limit = ModOptions.CulturalPreciseness();
             units.RemoveAll(x => x.GetName() == "Levy" && x.GetSoldiers() <= limit);
-            for (int i = 0; i < unit_data.UnitNum; i++)
+            for (var i = 0; i < unitData.UnitNum; i++)
             {
                 if (i == 0)
-                    units.Add(new Unit("Levy", unit_data.UnitSoldiers + null_soldiers, levies_top_cultures[i].GetObjCulture(), RegimentType.Levy));
+                    units.Add(new Unit("Levy", unitData.UnitSoldiers + nullSoldiers, leviesTopCultures[i].GetObjCulture(), RegimentType.Levy));
                 else
-                    units.Add(new Unit("Levy", unit_data.UnitSoldiers, levies_top_cultures[i].GetObjCulture(), RegimentType.Levy));
+                    units.Add(new Unit("Levy", unitData.UnitSoldiers, leviesTopCultures[i].GetObjCulture(), RegimentType.Levy));
             }
 
             return units;
